@@ -1,4 +1,4 @@
 .vs
-.bin
-.obj
-.items
+bin/*
+obj/*
+Items/*
