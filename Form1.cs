@@ -28,11 +28,7 @@ namespace GetUnItems
         {
             xixi = new DFS("C:\\Users\\magic\\Documents\\Git\\unturned-Chinese\\Items");
             xixi.Search();
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-            {
-                MessageBox.Show("111");
-            }
-
+            MessageBox.Show("Generated!");
         }
 
     }

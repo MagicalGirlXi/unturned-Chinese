@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -30,6 +31,7 @@ namespace GetUnItems.util
             for (int i = 0;i < directoryInfos.Length; i++)
             {
                 lei += directoryInfos[i].Name;
+                //MessageBox.Show(directoryInfos[i].Name);
                 lei += "\n";
                 DirectoryInfo[] temp = directoryInfos[i].GetDirectories();//当前物品类的文件夹
                 ArrayList CurrentTypeItems = new ArrayList();//当前类的UnItem集合
@@ -47,7 +49,8 @@ namespace GetUnItems.util
                 //showChilds(temp);
             }
             //MessageBox.Show(lei);
-            DisplayJson(d);
+            //Display(d);
+            GenerateJson(d);
         }
         private void showChilds(DirectoryInfo[] a)
         {
@@ -80,7 +83,7 @@ namespace GetUnItems.util
             }
             return null;
         }
-        private string DisplayJson(Dictionary<String, ArrayList> d)
+        private string Display(Dictionary<String, ArrayList> d)
         {
             StreamWriter sw = new StreamWriter("result.txt");
             foreach (string key in d.Keys)
@@ -104,6 +107,72 @@ namespace GetUnItems.util
 
             }
             return null;
+        }
+        private void GenerateJson(Dictionary<String, ArrayList> d)
+        {
+            StreamWriter sw = new StreamWriter("json.txt");
+            sw.WriteLine("[");
+            Boolean firstLei = true;
+            foreach (string key in d.Keys)
+
+            {
+                if (!firstLei)
+                {
+                    sw.Write(",");
+                }
+                else
+                {
+                    firstLei = false;
+                }
+                sw.WriteLine("{");
+                sw.WriteLine("\"Name\": \"" + key + "\",");
+                sw.WriteLine("\"Contain\": ");
+                sw.WriteLine("[");
+                Boolean first = true;
+                foreach (UnItem u in d[key])
+                {
+                    if (!first)
+                    {
+                        sw.Write(",");
+                    }
+                    else
+                    {
+                        first = false;
+                    }
+                    sw.WriteLine("{");
+                    string id = null;
+                    if (u.Props.ContainsKey("ID"))
+                    {
+                        id = u.Props["ID"];
+                    }
+                    else
+                    {
+                        id = "Null";
+                    }
+                    sw.WriteLine("\"Name\": \"" + u.Name + "\",");
+                    sw.WriteLine("\"CnName\": \"" + "待汉化" + "\",");
+                    sw.WriteLine("\"ID\": \"" + id + "\",");
+                    string desc = u.Description;//删除description里的html标签
+                    if (desc != null)
+                    {
+                        desc = System.Text.RegularExpressions.Regex.Replace(desc, "<", "");
+                        desc = System.Text.RegularExpressions.Regex.Replace(desc, ">", "");
+                        desc = System.Text.RegularExpressions.Regex.Replace(desc, "\"", "\'");
+                        sw.WriteLine("\"Description\": \"" + desc + "\"");
+                    }
+                    else
+                    {
+                        sw.WriteLine("\"Description\": \"" + "该物品无描述" + "\"");
+                    }
+                    sw.WriteLine("}");
+                }
+                sw.WriteLine("]");
+                sw.WriteLine("}");
+
+            }
+            sw.WriteLine("]");
+            sw.Flush();
+            sw.Close();
         }
     }
 }
