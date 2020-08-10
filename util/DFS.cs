@@ -38,6 +38,12 @@ namespace GetUnItems.util
                 for (int j = 0; j < temp.Length; j++)
                 {
                     UnItem CurrentItem = new UnItem();
+                    String cnname = GetName(temp[j]);
+                    if (cnname == null)
+                    {
+                        cnname = temp[j].Name;
+                    }
+                    CurrentItem.CnName = cnname;
                     CurrentItem.Name = temp[j].Name;
                     CurrentItem.Description = GetDescription(temp[j]);
                     CurrentItem.Props = ItemUtil.GetProperities(temp[j]);
@@ -68,11 +74,31 @@ namespace GetUnItems.util
             FileInfo[] fileInfos = a.GetFiles();
             for (int i = 0; i < fileInfos.Length; i++)
             {
-                if (fileInfos[i].Name.Equals("English.dat"))
+                if (fileInfos[i].Name.Equals("Schinese.dat"))
                 {
                     StreamReader sr = new StreamReader(fileInfos[i].FullName);
                     sr.ReadLine();
-                    while (sr.Read() != ' ' && !sr.EndOfStream) 
+                    while (sr.Read() != ' ' && !sr.EndOfStream)
+                        ;
+                    result = sr.ReadLine();
+                    //MessageBox.Show(result);
+                    sr.Close();
+                    return result;
+
+                }
+            }
+            return null;
+        }
+        private string GetName(DirectoryInfo a)
+        {
+            string result;
+            FileInfo[] fileInfos = a.GetFiles();
+            for (int i = 0; i < fileInfos.Length; i++)
+            {
+                if (fileInfos[i].Name.Equals("Schinese.dat"))
+                {
+                    StreamReader sr = new StreamReader(fileInfos[i].FullName);
+                    while (sr.Read() != ' ' && !sr.EndOfStream)
                         ;
                     result = sr.ReadLine();
                     //MessageBox.Show(result);
@@ -113,6 +139,7 @@ namespace GetUnItems.util
             StreamWriter sw = new StreamWriter("json.txt");
             sw.WriteLine("[");
             Boolean firstLei = true;
+            int index = 0;
             foreach (string key in d.Keys)
 
             {
@@ -126,6 +153,7 @@ namespace GetUnItems.util
                 }
                 sw.WriteLine("{");
                 sw.WriteLine("\"Name\": \"" + key + "\",");
+                sw.WriteLine("\"Index\": \"" + index++ + "\",");
                 sw.WriteLine("\"Contain\": ");
                 sw.WriteLine("[");
                 Boolean first = true;
@@ -149,9 +177,29 @@ namespace GetUnItems.util
                     {
                         id = "Null";
                     }
+                    string url = null;
+                    if (File.Exists(@"C:\Users\magic\Documents\Git\unturned-Chinese\pic\"+id+".png"))
+                    {
+                        url = "https://ut-1257119641.cos.ap-beijing.myqcloud.com/" + id + ".png";
+                    }
+                    else
+                    {
+                        url = "../../resources/erpic.jpg";
+                    }
+                    string rar = null;
+                    if (u.Props.ContainsKey("Rarity"))
+                    {
+                        rar = u.Props["Rarity"];
+                    }
+                    else
+                    {
+                        rar = "Null";
+                    }
                     sw.WriteLine("\"Name\": \"" + u.Name + "\",");
-                    sw.WriteLine("\"CnName\": \"" + "待汉化" + "\",");
+                    sw.WriteLine("\"CnName\": \"" + u.CnName + "\",");
                     sw.WriteLine("\"ID\": \"" + id + "\",");
+                    sw.WriteLine("\"Rarity\": \"" + rar + "\",");//Rarity Epic
+                    sw.WriteLine("\"pic\": \"" + url + "\",");//Rarity Epic
                     string desc = u.Description;//删除description里的html标签
                     if (desc != null)
                     {

@@ -11,6 +11,7 @@ namespace GetUnItems.domain
         public String Name { get; set; }
         public String Description { get; set; }
 
+        public String CnName { get; set; }
         public Dictionary<String, String> Props { get; set; }
 
     }
